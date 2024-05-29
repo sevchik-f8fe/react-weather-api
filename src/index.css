@@ -1,0 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Allura&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.customFontFamily {
+    font-family: 'Allura', cursive;
+}
