@@ -3,5 +3,5 @@
 
 Технологии:
 ```
-React, Vite, GitHub, git, Tailwind CSS, canvas, Three.js, WebGL, Router, Rechart,  Weather API
+React, Vite, GitHub, git, Tailwind CSS, canvas, Three.js, WebGL, Router, Rechart, Weather API
 ```
