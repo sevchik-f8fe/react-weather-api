@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { AreaChart, Area, BarChart, Bar, LabelList, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts";
 
-import { API_KEY, ICONS, DAYS_WEEK } from "../data/data";
+import { toCelsius, milesPerHourToMetersPerMinute, getCurrentHour, getData } from "../utils/supportFunctions";
+import { DefaultAreaChart, DefaultBarChart, DefaulWindChart, DefaultPressureChart } from "../components/Charts";
+import { API_KEY, ICONS, SHORT_DAYS_WEEK, DAYS_WEEK } from "../data/data";
 
 const Root = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -17,10 +18,13 @@ const Root = () => {
         latitude: 59.56,
     });
     const [isCelsius, setIsCelisius] = useState(true);
+    const [currentHour, setCurrentHour] = useState({});
+    const [activeDay, setActiveDay] = useState(0);
     const [activeChart, setActiveChart] = useState({
         temp: true,
-        humi: false,
+        precip: false,
         wind: false,
+        pres: false,
     });
 
     const url = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${location.latitude},${location.longitude}?key=${API_KEY}&lang=ru`;
@@ -37,9 +41,11 @@ const Root = () => {
             })
             .then(
                 json => {
-                    console.log("Data received:", json.days[0].hours);
+                    console.log("Data received:", json);
                     setData(json);
-                    setCurrentDay(json.days[0].hours);
+                    setCurrentDay(json.days[0]);
+                    setCurrentHour(json.days[0].hours[getCurrentHour()]);
+                    console.log(currentHour);
                 },
                 err => {
                     console.error("Fetch error:", err);
@@ -48,61 +54,21 @@ const Root = () => {
             .finally(() => setIsLoading(false))
     }, [url]);
 
-    const toCelsius = (f) => {
-        return ((f - 32) * (5 / 9)).toFixed(1);
-    }
-
-    const milesToMeters = (milesPH) => {
-        return (milesPH / 2.011).toFixed(1);
-    }
-
     const activeClass = 'border-b-4 border-pink-600 pb-2 cursor-pointer transition-all';
-
-    const tempData = () => {
-        return currentDay
-            .map(hour => ({
-                'name': hour?.datetime.slice(0, 5),
-                'uv': Number(toCelsius(hour?.temp)).toFixed(0)
-            }))
-            .filter((element, index) => index % 3 === 1);
-    }
-
-    const humiData = () => {
-        return currentDay
-            .map(hour => ({
-                'name': hour?.datetime.slice(0, 5),
-                'uv': hour?.precipprob
-            }))
-            .filter((element, index) => index % 3 === 1);
-    }
-
-    const CustomAreaLabel = ({ x, y, value }) => {
-        return (
-            <text className="text-sm font-medium" x={x} y={y} dy={-10} fill={"#333"} fontSize={10} textAnchor="middle">
-                {value}&#176;C
-            </text>
-        );
-    }
-
-    const CustomBarLabel = ({ x, y, width, value }) => {
-        return <text className="text-sm font-medium" x={x + width / 2} y={y} fill="#0492c2" textAnchor="middle" dy={-6}>
-            {value} %
-        </text>;
-    }
 
     return (
         <main className="w-4/5 mx-auto my-12">
             <div className="flex items-center justify-between">
 
                 <div className="flex gap-4 items-center">
-                    {/* <img src={ICONS.get(currentFrame.wx_code)} className="w-20 h-20" alt="weather icon" /> */}
+                    <img src={ICONS[currentHour?.icon]} className="w-20 h-20" alt="weather icon" />
                     <div className="flex items-start">
                         <span className="text-8xl text-zinc-800">
                             {
                                 isCelsius ? (
-                                    toCelsius(data?.currentConditions?.temp)
+                                    toCelsius(currentHour?.temp)
                                 ) : (
-                                    data?.currentConditions?.temp
+                                    currentHour?.temp
                                 )
                             }
                         </span>
@@ -126,9 +92,9 @@ const Root = () => {
                         </div>
 
                         <div className="flex flex-col ml-2 mt-3">
-                            <span className="text-sm text-zinc-400">Вероятность осадков: {data?.currentConditions?.precipprob} %</span>
-                            <span className="text-sm text-zinc-400">Влажность: {data?.currentConditions?.humidity} %</span>
-                            <span className="text-sm text-zinc-400">Ветер: {milesToMeters(data?.currentConditions?.windspeed)} м/с</span>
+                            <span className="text-sm text-zinc-400">Вероятность осадков: {currentHour?.precipprob} %</span>
+                            <span className="text-sm text-zinc-400">Влажность: {currentHour?.humidity} %</span>
+                            <span className="text-sm text-zinc-400">Ветер: {milesPerHourToMetersPerMinute(currentHour?.windspeed)} м/с</span>
                         </div>
                     </div>
 
@@ -136,8 +102,9 @@ const Root = () => {
 
                 <div className="flex self-start mt-3 items-end flex-col">
                     <span className="text-2xl text-zinc-800">Погода</span>
-                    <CurrentDate />
-                    <span className="text-zinc-400">{data?.currentConditions?.conditions}</span>
+                    <CurrentDate DAYS_WEEK={DAYS_WEEK} day={currentDay} hour={currentHour} />
+                    {/* <span className="text-zinc-400">{DAYS_WEEK[new Date(currentDay?.datetime).getDay()]} {currentHour}:00</span>; */}
+                    <span className="text-zinc-400">{currentHour?.conditions}</span>
                 </div>
             </div>
 
@@ -146,8 +113,9 @@ const Root = () => {
                     className={activeChart.temp ? activeClass : "pb-2 cursor-pointer border-b-4 border-transparent"}
                     onClick={() => setActiveChart({
                         temp: true,
-                        humi: false,
+                        precip: false,
                         wind: false,
+                        pres: false,
                     })}
                 >
                     Температура
@@ -158,11 +126,12 @@ const Root = () => {
                 </span>
 
                 <span
-                    className={activeChart.humi ? activeClass : "pb-2 cursor-pointer border-b-4 border-transparent"}
+                    className={activeChart.precip ? activeClass : "pb-2 cursor-pointer border-b-4 border-transparent"}
                     onClick={() => setActiveChart({
                         temp: false,
-                        humi: true,
+                        precip: true,
                         wind: false,
+                        pres: false,
                     })}
                 >
                     Вероятность осадков
@@ -176,60 +145,89 @@ const Root = () => {
                     className={activeChart.wind ? activeClass : "pb-2 cursor-pointer border-b-4 border-transparent"}
                     onClick={() => setActiveChart({
                         temp: false,
-                        humi: false,
+                        precip: false,
                         wind: true,
+                        pres: false,
                     })}
                 >
                     Ветер
                 </span>
+
+                <span className="font-thin text-zinc-300">
+                    |
+                </span>
+
+                <span
+                    className={activeChart.pres ? activeClass : "pb-2 cursor-pointer border-b-4 border-transparent"}
+                    onClick={() => setActiveChart({
+                        temp: false,
+                        precip: false,
+                        wind: false,
+                        pres: true,
+                    })}
+                >
+                    Давление
+                </span>
             </div>
 
-            <div>
+            <div className="w-full">
                 {activeChart.temp ? (
-                    <AreaChart width={640} height={180} data={tempData()} margin={{
-                        top: 20,
-                        right: 30,
-                        left: 20,
-                        bottom: 0,
-                    }}>
-                        <defs>
-                            <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="15%" stopColor="#fc46aa" stopOpacity={0.25} />
-                                {/* <stop offset="95%" stopColor="#fc46aa" stopOpacity={0} /> */}
-                            </linearGradient>
-                        </defs>
-                        <XAxis dataKey="name" />
-
-                        <LabelList dataKey="name" position="top" />
-                        <Area type="monotone" dataKey="uv" label={<CustomAreaLabel />} stroke="#fc46aa" strokeWidth={2} fillOpacity={1} fill="url(#colorUv)" />
-                    </AreaChart>
-                ) : activeChart.humi ?
+                    <DefaultAreaChart isCelsius={isCelsius} dataIcons={getData(currentDay.hours, 'icon')} dataCondit={getData(currentDay.hours, 'conditions')} color="#FFEF00" width={740} height={280} data={getData(currentDay.hours, 'temp')} />
+                ) : activeChart.precip ?
                     (
-                        <BarChart width={640} height={180} data={humiData()} margin={{
-                            top: 20,
-                            right: 10,
-                            left: 10,
-                            bottom: 0,
-                        }}>
-                            <XAxis dataKey="name" />
-                            <Bar dataKey="uv" barSize={30} fill="#0492c2" fillOpacity={0.25} stroke="#0492c2" strokeOpacity={0.7} strokeWidth={2}
-                                label={<CustomBarLabel />} />
-                        </BarChart>
+                        <DefaultBarChart color="#0492c2" width={740} height={280} dataHumi={getData(currentDay.hours, 'humidity')} data={getData(currentDay.hours, 'precipprob')} />
+                    ) : activeChart.wind ? (
+                        <DefaulWindChart color="#444444" width={740} height={280} dataWindDir={getData(currentDay.hours, 'winddir')} data={getData(currentDay.hours, 'windspeed')} />
                     ) : (
-                        <></>
-
+                        <DefaultPressureChart color="#03c04a" width={740} height={280} data={getData(currentDay.hours, 'pressure')} />
                     )
                 }
 
+                <div className="flex gap-2">
+                    {data?.days?.map((day, id) => <DayItem setCurrentHour={setCurrentHour} activeDay={activeDay} setActiveDay={setActiveDay} DAYS_WEEK={SHORT_DAYS_WEEK} data={data} day={day} toCelsius={toCelsius} isCelsius={isCelsius} setCurrentDay={setCurrentDay} key={day?.datetimeEpoch} ICONS={ICONS} id={id} />)}
+                </div>
             </div>
         </main>
     )
 }
 
-const CurrentDate = () => {
-    let now = new Date();
+const DayItem = ({ id, activeDay, setCurrentHour, setActiveDay, data, setCurrentDay, DAYS_WEEK, toCelsius, isCelsius, day, ICONS }) => {
 
-    return <span className="text-zinc-400">{DAYS_WEEK[now.getDay()]} {now.getHours()}:{now.getMinutes()}</span>;
+    const dayClass = (activeDay == id) ? "bg-zinc-200 p-1 flex flex-col items-center rounded-md shadow-md cursor-pointer transition-colors" : "cursor-pointer bg-zinc-50 p-1 flex flex-col items-center rounded-md shadow-md hover:bg-zinc-200 active:bg-zinc-100 transition-colors"
+
+    return (
+        <div
+            onClick={() => {
+                setActiveDay(id);
+                setCurrentDay(data?.days[id]);
+                setCurrentHour(data?.days[id]?.hours[13]);
+            }}
+            className={dayClass}
+        >
+            <img className="w-8 h-8" src={ICONS[day?.icon]} alt="day icon" />
+            <span className="text-zinc-700">
+                {isCelsius ? (
+                    <>{toCelsius(day?.temp)} &#176;C</>
+                ) : (
+                    <>{day?.temp} &#176;F</>
+                )}
+            </span>
+            <span className="text-zinc-400">
+                {isCelsius ? (
+                    <>{toCelsius(day?.feelslike)} &#176;C</>
+                ) : (
+                    <>{day?.feelslike} &#176;F</>
+                )}
+            </span>
+            <span className="text-zinc-700">{DAYS_WEEK[new Date(day?.datetime).getDay()]}</span>
+        </div>
+    );
+}
+
+const CurrentDate = ({ day, hour, DAYS_WEEK }) => {
+    let now = new Date(day?.datetime).getDay();
+
+    return <span className="text-zinc-400">{DAYS_WEEK[Number(now)]} {(hour?.datetime)?.slice(0, 5)}</span>;
 }
 
 export default Root;
