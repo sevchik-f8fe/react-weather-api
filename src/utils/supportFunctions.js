@@ -23,6 +23,10 @@ export const milibarToMMRTST = (mb) => {
     return Math.round(mb * 0.750063755419211);
 }
 
+export const milesToKM = (m) => {
+    return (m * 1.609344).toFixed(1);
+}
+
 export const calculateDaylightDuration = (riseTime, setTime) => {
     const riseDate = new Date(`1970-01-01T${riseTime}Z`);
     const setDate = new Date(`1970-01-01T${setTime}Z`);

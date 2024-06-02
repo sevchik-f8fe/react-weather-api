@@ -1,13 +1,14 @@
 import { useState, useEffect, useContext } from "react";
 
-import { toCelsius, milesPerHourToMetersPerMinute, getCurrentHour, getData, calculateDaylightDuration } from "../utils/supportFunctions";
+import { toCelsius, milesPerHourToMetersPerMinute, getCurrentHour, getData, calculateDaylightDuration, milesToKM } from "../utils/supportFunctions";
 import { DefaultAreaChart, DefaultBarChart, DefaulWindChart, DefaultPressureChart } from "../components/Charts";
 import { API_KEY, ICONS, SHORT_DAYS_WEEK, MOONPHASES, DAYS_WEEK } from "../data/data";
 
 import locationIcon from "../assets/land-layer-location.svg";
 import sunrise from "../assets/sun/sunrise.png";
 import sunset from "../assets/sun/sunset.png";
-import sunEnergy from "../assets/sun/sun-energy.png"
+import sunEnergy from "../assets/sun/sun-energy.png";
+import cloudy from "../assets/sun/cloudy.png";
 
 const Root = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -207,13 +208,29 @@ const Root = () => {
                     <div className="grid grid-cols-3 gap-4 mt-6 auto-rows-min">
                         <MoonPhaseContainer currentDay={currentDay} />
                         <SolarEnergyContainer currentDay={currentDay} />
-                        {/* <MoonPhaseContainer currentDay={currentDay} /> */}
-                        {/* <MoonPhaseContainer currentDay={currentDay} /> */}
+                        <SkyAnalyticsContainer currentDay={currentDay} />
                     </div>
                 </>
             )}
         </main>
     )
+}
+
+const SkyAnalyticsContainer = ({ currentDay }) => {
+
+
+
+    return (
+        <div className="bg-zinc-50 p-2 flex rounded-xl gap-2 shadow-md">
+            <img className="w-12 h-12" src={cloudy} alt="sun-energy icon" />
+
+            <div className="flex flex-col gap-2">
+                <div>{currentDay?.description}</div>
+                <div>Облачность: <span className="text-cyan-500 font-medium">{currentDay?.cloudcover} %</span></div>
+                <div>Видимость: <span className="text-zinc-700 font-medium">{milesToKM(currentDay?.visibility)} км</span></div>
+            </div>
+        </div>
+    );
 }
 
 const SolarEnergyContainer = ({ currentDay }) => {
@@ -222,7 +239,7 @@ const SolarEnergyContainer = ({ currentDay }) => {
     );
 
     return (
-        <div className="bg-zinc-50 p-2 flex rounded-xl shadow-md">
+        <div className="bg-zinc-50 p-2 gap-2 flex rounded-xl shadow-md">
             <img className="w-12 h-12" src={sunEnergy} alt="sun-energy icon" />
 
             <div className="flex flex-grow flex-col text-sm text-zinc-600 justify-around ">
