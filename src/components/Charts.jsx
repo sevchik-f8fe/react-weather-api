@@ -1,5 +1,5 @@
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, LabelList, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts";
-import { toCelsius, milesPerHourToMetersPerMinute } from "../utils/supportFunctions";
+import { toCelsius, milesPerHourToMetersPerMinute, milibarToMMRTST } from "../utils/supportFunctions";
 import { WIND_DIR, WIND_ICONS, ICONS } from "../data/data";
 
 export const DefaultAreaChart = ({ data, width, height, color, isCelsius, dataCondit, dataIcons }) => {
@@ -18,12 +18,12 @@ export const DefaultAreaChart = ({ data, width, height, color, isCelsius, dataCo
 
     const getIcon = (time) => {
         const elem = dataIcons.find(elem => elem.name == time);
-        return ICONS[elem.uv];
+        return ICONS[elem?.uv];
     }
 
     const getCondition = (time) => {
         const elem = dataCondit.find(elem => elem.name == time);
-        return elem.uv;
+        return elem?.uv;
     }
 
     const CustomTooltip = ({ active, payload, label }) => {
@@ -161,7 +161,7 @@ export const DefaultPressureChart = ({ width, height, data, color }) => {
     const CustomPressureLabel = ({ x, y, value }) => {
         return (
             <text className="text-sm font-medium" x={x} y={y} dy={-10} fill={"#03c04a"} fontSize={10} textAnchor="middle">
-                {value} мм
+                {milibarToMMRTST(value)} мм
             </text>
         );
     }

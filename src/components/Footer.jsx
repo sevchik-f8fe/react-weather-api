@@ -14,35 +14,38 @@ const Footer = () => {
                     <ul className="pr-8 border-zinc-200 border-r-2">
                         <li className="text-xl font-medium text-zinc-700 mb-3">Используемые технологии</li>
                         <li>
-                            <a href="#" className="mb-1 text-zinc-500 text-lg hover:text-pink-500 transition-colors">React JS</a>
+                            <a href="#" className="mb-1.5 text-zinc-500 text-lg hover:text-pink-500 transition-colors">React JS</a>
                         </li>
                         <li>
-                            <a href="#" className="mb-1 text-zinc-500 text-lg hover:text-pink-500 transition-colors">Rechart</a>
+                            <a href="#" className="mb-1.5 text-zinc-500 text-lg hover:text-pink-500 transition-colors">Rechart</a>
                         </li>
                         <li>
-                            <a href="#" className="mb-1 text-zinc-500 text-lg hover:text-pink-500 transition-colors">Tailwind CSS</a>
+                            <a href="#" className="mb-1.5 text-zinc-500 text-lg hover:text-pink-500 transition-colors">Tailwind CSS</a>
                         </li>
                         <li>
-                            <a href="#" className="mb-1 text-zinc-500 text-lg hover:text-pink-500 transition-colors">React Router</a>
+                            <a href="#" className="mb-1.5 text-zinc-500 text-lg hover:text-pink-500 transition-colors">React Router</a>
                         </li>
                         <li>
-                            <a href="#" className="mb-1 text-zinc-500 text-lg hover:text-pink-500 transition-colors">WebGL</a>
+                            <a href="#" className="mb-1.5 text-zinc-500 text-lg hover:text-pink-500 transition-colors">WebGL</a>
                         </li>
                         <li>
-                            <a href="#" className="mb-1 text-zinc-500 text-lg hover:text-pink-500 transition-colors">Vite</a>
+                            <a href="#" className="mb-1.5 text-zinc-500 text-lg hover:text-pink-500 transition-colors">Vite</a>
+                        </li>
+                        <li>
+                            <a href="#" className="mb-1.5 text-zinc-500 text-lg hover:text-pink-500 transition-colors">Faticon</a>
                         </li>
                     </ul>
 
                     <ul>
                         <li className="text-xl font-medium text-zinc-700 mb-3">Я тут</li>
                         <li>
-                            <a href="#" className="mb-1 text-zinc-500 text-lg hover:text-pink-500 transition-colors">Telegram</a>
+                            <a href="#" className="mb-1.5 text-zinc-500 text-lg hover:text-pink-500 transition-colors">Telegram</a>
                         </li>
                         <li>
-                            <a href="#" className="mb-1 text-zinc-500 text-lg hover:text-pink-500 transition-colors">GitHub</a>
+                            <a href="#" className="mb-1.5 text-zinc-500 text-lg hover:text-pink-500 transition-colors">GitHub</a>
                         </li>
                         <li>
-                            <a href="#" className="mb-1 text-zinc-500 text-lg hover:text-pink-500 transition-colors">Discord</a>
+                            <a href="#" className="mb-1.5 text-zinc-500 text-lg hover:text-pink-500 transition-colors">Discord</a>
                         </li>
                     </ul>
                 </div>
