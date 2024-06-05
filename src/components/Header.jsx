@@ -1,26 +1,59 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 import icon from "../assets/weather-favicon-color.png";
 import switchThemeIcon from "../assets/power.svg";
-import locationIcon from "../assets/land-layer-location.svg";
 
 const Header = () => {
-    const [value, setValue] = useState('');
+    const [theme, setTheme] = useState(() => {
+        const initialTheme = localStorage.getItem("theme");
+        return initialTheme ? initialTheme : "light";
+    });
+
+    useEffect(() => {
+        if (window.matchMedia('{prefers-color-scheme: dark}').matches) {
+            setTheme('dark');
+        } else setTheme('light');
+    }, [])
+
+    useEffect(() => {
+        getThemeFromLocalStorage();
+
+        if (theme === "dark") {
+            document.body.classList.add("dark");
+        } else {
+            document.body.classList.remove("dark");
+        }
+    }, [theme])
+
+    const getThemeFromLocalStorage = () => {
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme) {
+            setTheme(savedTheme);
+        }
+    }
+
+    const toggleTheme = () => {
+        setTheme((prevTheme) => {
+            const newTheme = prevTheme === "light" ? "dark" : "light";
+            localStorage.setItem("theme", newTheme);
+            return newTheme;
+        });
+    }
 
     return (
-        <header className="sticky border-b border-pink-300 z-50 top-[.1px] rounded-lg bg-white px-5 py-3 w-full">
+        <header className="sticky dark:bg-zinc-900 border-b dark:border-transparent border-pink-300 z-50 top-[.1px] bg-white px-5 py-3 w-full">
             <div className="w-4/5 relative mx-auto flex items-center justify-between">
-                <div className="flex items-center px-3 py-1 hover:bg-pink-50 hover:scale-105 active:scale-95 cursor-pointer transition-all rounded-xl shadow-md">
+                <div className="flex items-center px-3 py-1 dark:hover:bg-zinc-900 dark:shadow-sm dark:shadow-zinc-700 hover:bg-pink-50 hover:scale-105 active:scale-95 cursor-pointer transition-all rounded-xl shadow-md">
                     <img src={icon} className="h-12 w-12" alt="logo" />
-                    <span className='customFontFamily ml-2 select-none text-pink-500 text-2xl font-bold'>Weather API</span>
+                    <span className='customFontFamily ml-2 select-none text-pink-500 dark:text-pink-600 text-2xl font-bold'>Weather API</span>
                 </div>
 
                 <nav>
                     <ul className="flex gap-6">
                         <li>
                             <a
-                                className="text-md hover:text-pink-400 hover:border-pink-400 transition-all pb-2 px-2 border-zinc-400 text-zinc-400 border-b"
+                                className="text-md hover:text-pink-500 hover:border-pink-500 transition-all pb-2 px-2 border-zinc-400 text-zinc-400 border-b"
                                 href="#"
                             >
                                 GitHub
@@ -28,7 +61,7 @@ const Header = () => {
                         </li>
                         <li>
                             <a
-                                className="text-md hover:text-pink-400 hover:border-pink-400 transition-all pb-2 px-2 border-zinc-400 text-zinc-400 border-b"
+                                className="text-md hover:text-pink-500 hover:border-pink-500 transition-all pb-2 px-2 border-zinc-400 text-zinc-400 border-b"
                                 href="#"
                             >
                                 Связь
@@ -36,14 +69,14 @@ const Header = () => {
                         </li>
                         <li>
                             <a
-                                className="text-md hover:text-pink-400 hover:border-pink-400 transition-all pb-2 px-2 border-zinc-400 text-zinc-400 border-b"
+                                className="text-md hover:text-pink-500 hover:border-pink-500 transition-all pb-2 px-2 border-zinc-400 text-zinc-400 border-b"
                                 href="#"
                             >
                                 О проекте
                             </a>
                         </li>
                         <li>
-                            <button className="bg-pink-50 p-1 rounded-md hover:bg-pink-200 hover:scale-105 active:scale-95 transition-all">
+                            <button onClick={toggleTheme} className="bg-pink-50 dark:bg-zinc-500 dark:hover:bg-pink-500 p-1 rounded-md hover:bg-pink-200 hover:scale-105 active:scale-95 transition-all">
                                 <img src={switchThemeIcon} className="h-6 select-none w-6" alt="switch theme" />
                             </button>
                         </li>

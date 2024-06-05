@@ -5,7 +5,7 @@ import { WIND_DIR, WIND_ICONS, ICONS } from "../data/data";
 export const DefaultAreaChart = ({ data, width, height, color, isCelsius, dataCondit, dataIcons }) => {
     const CustomAreaLabel = ({ x, y, value }) => {
         return (
-            <text className="text-sm font-medium" x={x} y={y} dy={-10} fill={"#333"} fontSize={10} textAnchor="middle">
+            <text className="text-sm font-medium bg-zinc-800" x={x} y={y} dy={-10} fill={color} fontSize={10} textAnchor="middle">
                 {isCelsius ? (
                     <>{toCelsius(value)} &#176;C</>
                 ) : (
@@ -29,7 +29,7 @@ export const DefaultAreaChart = ({ data, width, height, color, isCelsius, dataCo
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
             return (
-                <div className="bg-zinc-50 p-1 rounded-md shadow-md flex gap-2 items-center">
+                <div className="bg-zinc-50 dark:bg-zinc-700 dark:text-white py-1 px-2 rounded-md shadow-md flex gap-1 items-center">
                     <img className="w-8 h-8" src={getIcon(label)} alt="weather icon" />
                     <p>{getCondition(label)}</p>
                 </div>
@@ -74,8 +74,7 @@ export const DefaultBarChart = ({ width, height, color, data, dataHumi }) => {
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
             return (
-                <div className="bg-zinc-50 p-1 rounded-md shadow-md">
-                    {/* <img className="w-8 h-8" src={getIcon(label)} alt="weather icon" /> */}
+                <div className="bg-zinc-50 dark:bg-zinc-700 dark:text-white p-1 rounded-md shadow-md">
                     <p>Влажность: {getHumi(label)} %</p>
                 </div>
             );
@@ -104,7 +103,7 @@ export const DefaultBarChart = ({ width, height, color, data, dataHumi }) => {
 export const DefaulWindChart = ({ width, height, data, color, dataWindDir }) => {
     const CustomWindLabel = ({ x, y, value }) => {
         return (
-            <text className="text-sm font-medium" x={x} y={y} dy={-10} fill={"#333"} fontSize={10} textAnchor="middle">
+            <text className="text-sm font-medium" x={x} y={y} dy={-10} fill={"#888"} fontSize={10} textAnchor="middle">
                 {milesPerHourToMetersPerMinute(value)} м/с
             </text>
         );
@@ -118,7 +117,7 @@ export const DefaulWindChart = ({ width, height, data, color, dataWindDir }) => 
     const GetWindDir = ({ time }) => {
         let elem = dataWindDir.find(elem => elem.name == time);
         return (
-            <div className="flex gap-2 items-center justify-center">
+            <div className="flex bg-zinc-50 gap-2 items-center justify-center">
                 <span>{WIND_DIR[getDir(elem.uv)]}</span>
                 <img src={WIND_ICONS[getDir(elem.uv)]} className="w-6 h-6" alt="wind direction" />
             </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 
 import { toCelsius, milesPerHourToMetersPerMinute, getCurrentHour, getData, calculateDaylightDuration, milesToKM } from "../utils/supportFunctions";
 import { DefaultAreaChart, DefaultBarChart, DefaulWindChart, DefaultPressureChart } from "../components/Charts";
@@ -12,19 +12,14 @@ import cloudy from "../assets/sun/cloudy.png";
 
 const Root = () => {
     const [isLoading, setIsLoading] = useState(false);
-    const [data, setData] = useState({
-        addres: null,
-        currentConditions: null,
-        days: null,
-        description: null,
-    });
+    const [error, setError] = useState(null);
+    const [data, setData] = useState({});
     const [currentDay, setCurrentDay] = useState([]);
 
-    const [location, setLocation] = useState({
-        longitude: 30.18,
-        latitude: 59.56,
+    const [query, setQuery] = useState(() => {
+        const initialQuery = localStorage.getItem("query");
+        return initialQuery ? initialQuery : "Moscow";
     });
-    const [query, setQuery] = useState('Moscow');
     const [value, setValue] = useState('');
 
     const [isCelsius, setIsCelisius] = useState(true);
@@ -45,7 +40,7 @@ const Root = () => {
         fetch(url)
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error('Network response is not ok!');
                 }
                 return response.json();
             })
@@ -55,171 +50,191 @@ const Root = () => {
                     setData(json);
                     setCurrentDay(json.days[0]);
                     setCurrentHour(json.days[0].hours[getCurrentHour()]);
-                    console.log(currentHour);
                 },
                 err => {
-                    console.error("Fetch error:", err);
+                    setError(err.message);
                 }
             )
             .finally(() => setIsLoading(false))
     }, [url]);
 
+    useEffect(() => {
+        getQueryFromStorage();
+    }, [query]);
+
+    const getQueryFromStorage = () => {
+        const savedQuery = localStorage.getItem("query");
+        if (savedQuery) setQuery(savedQuery);
+    }
+
+    const errorEscape = () => {
+        localStorage.setItem("query", "Moscow");
+        setQuery("Moscow");
+        location.reload();
+    }
+
     const activeClass = 'border-b-4 border-pink-600 pb-2 cursor-pointer transition-all';
 
     return (
-        <main className="w-4/5 mx-auto my-12">
-            {isLoading ? (
-                <div className="h-screen flex justify-center">
-                    <div className="border-b-2 mt-20 animate-spin border-pink-300 rounded-full h-20 w-20"></div>
-                </div>
-            ) : (
-                <>
-                    <SearchContainer value={value} setValue={setValue} setQuery={setQuery} setLocation={setLocation} />
+        <main className="w-full bg-white dark:bg-zinc-800">
+            <div className="w-4/5 py-12 mx-auto">
+                {isLoading ? (
+                    <div className="h-screen flex justify-center">
+                        <div className="border-b-2 mt-20 animate-spin dark:border-pink-800 border-pink-300 rounded-full h-20 w-20"></div>
+                    </div>
+                ) : (error ? (
+                    <div className="h-screen flex justify-start gap-2 items-center flex-col">
+                        <h1 className="mb-4 font-bold text-6xl text-red-700">Ой!</h1>
+                        <p className="bg-zinc-950 font-thin p-1 text-2xl dark:bg-zinc-100 dark:text-red-800 text-red-300">{error}</p>
+                        <p onClick={errorEscape} className="text-zinc-500 dark:hover:text-zinc-300 underline transition-colors cursor-pointer hover:text-zinc-950 font-medium text-xl">Попробуйте нажать сюда.</p>
+                    </div>
+                ) : (
+                    <>
+                        <SearchContainer value={value} setValue={setValue} setQuery={setQuery} />
 
-                    <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between">
 
-                        <div className="flex gap-4 items-center">
-                            <img src={ICONS[currentHour?.icon]} className="w-20 h-20" alt="weather icon" />
-                            <div className="flex items-start">
-                                <span className="text-8xl text-zinc-800">
-                                    {
-                                        isCelsius ? (
-                                            toCelsius(currentHour?.temp)
-                                        ) : (
-                                            currentHour?.temp
-                                        )
-                                    }
-                                </span>
+                            <div className="flex gap-4 items-center">
+                                <img src={ICONS[currentHour?.icon]} className="w-20 h-20" alt="weather icon" />
+                                <div className="flex items-start">
+                                    <span className="text-8xl text-zinc-800 dark:text-zinc-100">
+                                        {
+                                            isCelsius ? (
+                                                toCelsius(currentHour?.temp)
+                                            ) : (
+                                                currentHour?.temp
+                                            )
+                                        }
+                                    </span>
 
-                                <div className="flex gap-1 mt-3">
-                                    <span
-                                        className={`text-2xl font-medium cursor-pointer ${isCelsius ? "text-zinc-700" : "text-zinc-400"}`}
-                                        onClick={() => setIsCelisius(true)}
-                                    >
-                                        &#176;C
-                                    </span>
-                                    <span className="text-2xl font-medium text-zinc-700">
-                                        |
-                                    </span>
-                                    <span
-                                        className={`text-2xl font-medium cursor-pointer ${!isCelsius ? "text-zinc-700" : "text-zinc-400"}`}
-                                        onClick={() => setIsCelisius(false)}
-                                    >
-                                        &#176;F
-                                    </span>
+                                    <div className="flex gap-1 mt-3">
+                                        <span
+                                            className={`text-2xl font-medium cursor-pointer ${isCelsius ? "text-zinc-700 dark:text-zinc-200" : "text-zinc-400 dark:text-zinc-600"}`}
+                                            onClick={() => setIsCelisius(true)}
+                                        >
+                                            &#176;C
+                                        </span>
+                                        <span className="text-2xl font-medium text-zinc-700">
+                                            |
+                                        </span>
+                                        <span
+                                            className={`text-2xl font-medium cursor-pointer ${!isCelsius ? "text-zinc-700 dark:text-zinc-200" : "text-zinc-400 dark:text-zinc-600"}`}
+                                            onClick={() => setIsCelisius(false)}
+                                        >
+                                            &#176;F
+                                        </span>
+                                    </div>
+
+                                    <div className="flex flex-col ml-2 mt-3">
+                                        <span className="text-sm text-zinc-400">Вероятность осадков: {currentHour?.precipprob} %</span>
+                                        <span className="text-sm text-zinc-400">Влажность: {currentHour?.humidity} %</span>
+                                        <span className="text-sm text-zinc-400">Ветер: {milesPerHourToMetersPerMinute(currentHour?.windspeed)} м/с</span>
+                                    </div>
                                 </div>
 
-                                <div className="flex flex-col ml-2 mt-3">
-                                    <span className="text-sm text-zinc-400">Вероятность осадков: {currentHour?.precipprob} %</span>
-                                    <span className="text-sm text-zinc-400">Влажность: {currentHour?.humidity} %</span>
-                                    <span className="text-sm text-zinc-400">Ветер: {milesPerHourToMetersPerMinute(currentHour?.windspeed)} м/с</span>
-                                </div>
                             </div>
 
+                            <div className="flex self-start mt-3 items-end flex-col">
+                                <span className="text-xl text-zinc-800 dark:text-zinc-100 max-w-96 text-right">{data?.resolvedAddress}</span>
+                                <CurrentDate DAYS_WEEK={DAYS_WEEK} day={currentDay} hour={currentHour} />
+                                <span className="text-zinc-400">{currentHour?.conditions}</span>
+                            </div>
                         </div>
 
-                        <div className="flex self-start mt-3 items-end flex-col">
-                            <span className="text-xl text-zinc-800 max-w-96 text-right">{data?.resolvedAddress}</span>
-                            <CurrentDate DAYS_WEEK={DAYS_WEEK} day={currentDay} hour={currentHour} />
-                            <span className="text-zinc-400">{currentHour?.conditions}</span>
+                        <div className="flex gap-2 text-lg text-zinc-700 dark:text-zinc-300 my-4">
+                            <span
+                                className={activeChart.temp ? activeClass : "pb-2 cursor-pointer border-b-4 border-transparent"}
+                                onClick={() => setActiveChart({
+                                    temp: true,
+                                    precip: false,
+                                    wind: false,
+                                    pres: false,
+                                })}
+                            >
+                                Температура
+                            </span>
+
+                            <span className="font-thin text-zinc-300 dark:text-zinc-500">
+                                |
+                            </span>
+
+                            <span
+                                className={activeChart.precip ? activeClass : "pb-2 cursor-pointer border-b-4 border-transparent"}
+                                onClick={() => setActiveChart({
+                                    temp: false,
+                                    precip: true,
+                                    wind: false,
+                                    pres: false,
+                                })}
+                            >
+                                Вероятность осадков
+                            </span>
+
+                            <span className="font-thin text-zinc-300 dark:text-zinc-500">
+                                |
+                            </span>
+
+                            <span
+                                className={activeChart.wind ? activeClass : "pb-2 cursor-pointer border-b-4 border-transparent"}
+                                onClick={() => setActiveChart({
+                                    temp: false,
+                                    precip: false,
+                                    wind: true,
+                                    pres: false,
+                                })}
+                            >
+                                Ветер
+                            </span>
+
+                            <span className="font-thin text-zinc-300 dark:text-zinc-500">
+                                |
+                            </span>
+
+                            <span
+                                className={activeChart.pres ? activeClass : "pb-2 cursor-pointer border-b-4 border-transparent"}
+                                onClick={() => setActiveChart({
+                                    temp: false,
+                                    precip: false,
+                                    wind: false,
+                                    pres: true,
+                                })}
+                            >
+                                Давление
+                            </span>
                         </div>
-                    </div>
 
-                    <div className="flex gap-2 text-lg text-zinc-700 my-4">
-                        <span
-                            className={activeChart.temp ? activeClass : "pb-2 cursor-pointer border-b-4 border-transparent"}
-                            onClick={() => setActiveChart({
-                                temp: true,
-                                precip: false,
-                                wind: false,
-                                pres: false,
-                            })}
-                        >
-                            Температура
-                        </span>
+                        <div className="w-full">
+                            {activeChart.temp ? (
+                                <DefaultAreaChart isCelsius={isCelsius} dataIcons={getData(currentDay.hours, 'icon')} dataCondit={getData(currentDay.hours, 'conditions')} color="#ffaf00" width={1140} height={280} data={getData(currentDay.hours, 'temp')} />
+                            ) : activeChart.precip ?
+                                (
+                                    <DefaultBarChart color="#0492c2" width={1140} height={280} dataHumi={getData(currentDay.hours, 'humidity')} data={getData(currentDay.hours, 'precipprob')} />
+                                ) : activeChart.wind ? (
+                                    <DefaulWindChart color="#888" width={1140} height={280} dataWindDir={getData(currentDay.hours, 'winddir')} data={getData(currentDay.hours, 'windspeed')} />
+                                ) : (
+                                    <DefaultPressureChart color="#03c04a" width={1140} height={280} data={getData(currentDay.hours, 'pressure')} />
+                                )
+                            }
 
-                        <span className="font-thin text-zinc-300">
-                            |
-                        </span>
-
-                        <span
-                            className={activeChart.precip ? activeClass : "pb-2 cursor-pointer border-b-4 border-transparent"}
-                            onClick={() => setActiveChart({
-                                temp: false,
-                                precip: true,
-                                wind: false,
-                                pres: false,
-                            })}
-                        >
-                            Вероятность осадков
-                        </span>
-
-                        <span className="font-thin text-zinc-300">
-                            |
-                        </span>
-
-                        <span
-                            className={activeChart.wind ? activeClass : "pb-2 cursor-pointer border-b-4 border-transparent"}
-                            onClick={() => setActiveChart({
-                                temp: false,
-                                precip: false,
-                                wind: true,
-                                pres: false,
-                            })}
-                        >
-                            Ветер
-                        </span>
-
-                        <span className="font-thin text-zinc-300">
-                            |
-                        </span>
-
-                        <span
-                            className={activeChart.pres ? activeClass : "pb-2 cursor-pointer border-b-4 border-transparent"}
-                            onClick={() => setActiveChart({
-                                temp: false,
-                                precip: false,
-                                wind: false,
-                                pres: true,
-                            })}
-                        >
-                            Давление
-                        </span>
-                    </div>
-
-                    <div className="w-full">
-                        {activeChart.temp ? (
-                            <DefaultAreaChart isCelsius={isCelsius} dataIcons={getData(currentDay.hours, 'icon')} dataCondit={getData(currentDay.hours, 'conditions')} color="#FFEF00" width={1140} height={280} data={getData(currentDay.hours, 'temp')} />
-                        ) : activeChart.precip ?
-                            (
-                                <DefaultBarChart color="#0492c2" width={1140} height={280} dataHumi={getData(currentDay.hours, 'humidity')} data={getData(currentDay.hours, 'precipprob')} />
-                            ) : activeChart.wind ? (
-                                <DefaulWindChart color="#444444" width={1140} height={280} dataWindDir={getData(currentDay.hours, 'winddir')} data={getData(currentDay.hours, 'windspeed')} />
-                            ) : (
-                                <DefaultPressureChart color="#03c04a" width={1140} height={280} data={getData(currentDay.hours, 'pressure')} />
-                            )
-                        }
-
-                        <div className="flex gap-2 my-4 pl-6">
-                            {data?.days?.map((day, id) => <DayItem setCurrentHour={setCurrentHour} activeDay={activeDay} setActiveDay={setActiveDay} DAYS_WEEK={SHORT_DAYS_WEEK} data={data} day={day} toCelsius={toCelsius} isCelsius={isCelsius} setCurrentDay={setCurrentDay} key={day?.datetimeEpoch} ICONS={ICONS} id={id} />)}
+                            <div className="flex gap-2 my-4 pl-6">
+                                {data?.days?.map((day, id) => <DayItem setCurrentHour={setCurrentHour} activeDay={activeDay} setActiveDay={setActiveDay} DAYS_WEEK={SHORT_DAYS_WEEK} data={data} day={day} toCelsius={toCelsius} isCelsius={isCelsius} setCurrentDay={setCurrentDay} key={day?.datetimeEpoch} ICONS={ICONS} id={id} />)}
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="grid grid-cols-3 gap-4 mt-6 auto-rows-min">
-                        <MoonPhaseContainer currentDay={currentDay} />
-                        <SolarEnergyContainer currentDay={currentDay} />
-                        <SkyAnalyticsContainer currentDay={currentDay} />
-                    </div>
-                </>
-            )}
+                        <div className="grid grid-cols-3 gap-4 mt-6 auto-rows-min">
+                            <MoonPhaseContainer currentDay={currentDay} />
+                            <SolarEnergyContainer currentDay={currentDay} />
+                            <SkyAnalyticsContainer currentDay={currentDay} />
+                        </div>
+                    </>
+                ))}
+            </div>
+
         </main>
     )
 }
 
 const SkyAnalyticsContainer = ({ currentDay }) => {
-
-
-
     return (
         <div className="bg-zinc-50 p-2 flex rounded-xl gap-2 shadow-md">
             <img className="w-12 h-12" src={cloudy} alt="sun-energy icon" />
@@ -305,6 +320,7 @@ const SearchContainer = ({ value, setQuery, setValue }) => {
     const onSetPosition = () => {
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition((position) => {
+                setNewQuery(`${position.coords.latitude},${position.coords.longitude}`);
                 setQuery(`${position.coords.latitude},${position.coords.longitude}`);
             });
         } else {
@@ -312,23 +328,30 @@ const SearchContainer = ({ value, setQuery, setValue }) => {
         }
     }
 
+    const setNewQuery = (thing) => {
+        if (thing.length > 2) {
+            localStorage.setItem("query", thing);
+            setQuery(thing);
+        }
+    }
+
     window.onkeydown = (e) => {
-        if (e.key == 'Enter' && value.length > 0) setQuery(value);
+        if (e.key == 'Enter' && value.length > 0) setNewQuery(value);
     }
 
     return (
-        <div className="flex border-t border-b py-4 my-8 justify-between items-center">
+        <div className="flex border-t border-b dark:border-zinc-600 py-4 my-8 justify-between items-center">
             <div className="relative min-w-96">
                 <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                    <svg className="w-4 h-4 text-pink-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                    <svg className="w-4 h-4 dark:text-pink-600 text-pink-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
                     </svg>
                 </div>
-                <input value={value} onChange={(e) => setValue(e.target.value)} type="search" id="default-search" className="block outline-none w-full p-3 pl-10 text-md text-zinc-900 border border-pink-400 rounded-lg " placeholder="Чернобыль..." required />
-                <button onClick={() => setQuery(value)} type="button" className="text-white select-none absolute end-1.5 bottom-2 bg-pink-400 hover:bg-pink-500 outline-none active:bg-pink-300 transition-all font-medium rounded-lg text-sm px-2 py-2">Поиск</button>
+                <input value={value} onChange={(e) => setValue(e.target.value)} type="search" id="default-search" className="dark:bg-zinc-700 block outline-none w-full p-3 pl-10 text-md text-zinc-900 dark:text-zinc-50 dark:border-pink-600 border border-pink-400 rounded-lg " placeholder="Чернобыль..." required />
+                <button onClick={() => setNewQuery(value)} type="button" className="text-white select-none absolute end-1.5 bottom-2 bg-pink-400 dark:bg-pink-800 dark:hover:bg-pink-900 dark:active:bg-pink-700 hover:bg-pink-500 outline-none active:bg-pink-300 transition-all font-medium rounded-lg text-sm px-2 py-2">Поиск</button>
             </div>
 
-            <button onClick={onSetPosition} className="bg-pink-50 p-1 rounded-md hover:bg-pink-200 hover:scale-105 active:scale-95 transition-all">
+            <button onClick={onSetPosition} className="bg-pink-50 p-1 dark:bg-zinc-500 dark:hover:bg-pink-500 rounded-md hover:bg-pink-200 hover:scale-105 active:scale-95 transition-all">
                 <img src={locationIcon} className="h-6 select-none w-6" alt="use geolocation" />
             </button>
         </div>
@@ -357,13 +380,6 @@ const DayItem = ({ id, activeDay, setActiveDay, data, setCurrentDay, DAYS_WEEK, 
                     <>{day?.temp} &#176;F</>
                 )}
             </span>
-            {/* <span className="text-zinc-400">
-                {isCelsius ? (
-                    <>{toCelsius(day?.feelslike)} &#176;C</>
-                ) : (
-                    <>{day?.feelslike} &#176;F</>
-                )}
-            </span> */}
         </div>
     );
 }
