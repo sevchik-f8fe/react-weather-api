@@ -236,13 +236,13 @@ const Root = () => {
 
 const SkyAnalyticsContainer = ({ currentDay }) => {
     return (
-        <div className="bg-zinc-50 p-2 flex rounded-xl gap-2 shadow-md">
+        <div className="bg-zinc-50 dark:bg-zinc-700 p-2 flex rounded-xl gap-2 shadow-md">
             <img className="w-12 h-12" src={cloudy} alt="sun-energy icon" />
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col text-sm gap-4 dark:text-zinc-200">
                 <div>{currentDay?.description}</div>
-                <div>Облачность: <span className="text-cyan-500 font-medium">{currentDay?.cloudcover} %</span></div>
-                <div>Видимость: <span className="text-zinc-700 font-medium">{milesToKM(currentDay?.visibility)} км</span></div>
+                <div>Облачность: <span className="text-cyan-500 dark:text-cyan-400 font-medium">{currentDay?.cloudcover} %</span></div>
+                <div>Видимость: <span className="text-zinc-700 dark:text-zinc-50 font-medium">{milesToKM(currentDay?.visibility)} км</span></div>
             </div>
         </div>
     );
@@ -254,19 +254,19 @@ const SolarEnergyContainer = ({ currentDay }) => {
     );
 
     return (
-        <div className="bg-zinc-50 p-2 gap-2 flex rounded-xl shadow-md">
+        <div className="bg-zinc-50 dark:bg-zinc-700 p-2 gap-2 flex rounded-xl shadow-md">
             <img className="w-12 h-12" src={sunEnergy} alt="sun-energy icon" />
 
-            <div className="flex flex-grow flex-col text-sm text-zinc-600 justify-around ">
+            <div className="flex flex-grow flex-col text-sm text-zinc-600 dark:text-zinc-200 justify-around ">
                 <div className="flex-col items-center gap-6">
                     <span className="inline-block">Солнечное излучение: {currentDay?.solarradiation} Вт/м<sup>2</sup></span>
                     <span className="inline-block">Кол-во солнечной энергии за день: {currentDay?.solarenergy} МДж/м<sup>2</sup></span>
                 </div>
 
-                <span className="text-sm whitespace-nowrap text-zinc-600">УФ-индекс: <span className={`${bgClass} p-1 font-medium text-white rounded-md`}>{currentDay?.uvindex}</span></span>
+                <span className="text-sm whitespace-nowrap text-zinc-600 dark:text-zinc-200">УФ-индекс: <span className={`${bgClass} p-1 font-medium text-white rounded-md`}>{currentDay?.uvindex}</span></span>
                 <div className="h-6 flex flex-row gap-1">
                     {['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'].map((elem, id) => {
-                        return <span key={elem} className={id < currentDay?.uvindex ? `p-1 rounded-md border ${bgClass}` : "p-1 rounded-md border bg-zinc-200"}></span>
+                        return <span key={elem} className={id < currentDay?.uvindex ? `p-1 rounded-md border dark:border-zinc-500 ${bgClass}` : "p-1 rounded-md border dark:bg-zinc-600 dark:border-zinc-500 bg-zinc-200"}></span>
                     })}
                 </div>
             </div>
@@ -288,28 +288,28 @@ const MoonPhaseContainer = ({ currentDay }) => {
     else elem = MOONPHASES[7];
 
     return (
-        <div className="bg-zinc-50 p-2 rounded-xl shadow-md">
+        <div className="bg-zinc-50 dark:bg-zinc-700 p-2 rounded-xl shadow-md">
 
             <div className="flex gap-2 py-2 px-4 justify-between rounded-full border-2 border-amber-400">
                 <div>
                     <img src={sunrise} className="h-8 w-8" alt="sunrise icon" />
-                    <span className="text-zinc-700">{(currentDay?.sunrise)?.slice(0, 5)}</span>
+                    <span className="text-zinc-700 dark:text-zinc-100">{(currentDay?.sunrise)?.slice(0, 5)}</span>
                 </div>
 
                 <div className="flex flex-col justify-center items-center">
-                    <span className="text-sm text-zinc-600">Световой день</span>
-                    <span className="text-sm text-zinc-600">{calculateDaylightDuration(currentDay?.sunrise, currentDay?.sunset)}</span>
+                    <span className="text-sm text-zinc-600 dark:text-zinc-200">Световой день</span>
+                    <span className="text-sm text-zinc-600 dark:text-zinc-200">{calculateDaylightDuration(currentDay?.sunrise, currentDay?.sunset)}</span>
                 </div>
 
                 <div>
                     <img src={sunset} className="h-8 w-8" alt="sunset icon" />
-                    <span className="text-zinc-700">{(currentDay?.sunset)?.slice(0, 5)}</span>
+                    <span className="text-zinc-700 dark:text-zinc-100">{(currentDay?.sunset)?.slice(0, 5)}</span>
                 </div>
             </div>
 
             <div className="flex items-center gap-2 mt-4">
                 <img className="h-8 w-8" src={elem.icon} alt="moon phase icon" />
-                <span className="text-zinc-900 font-medium">{elem.name}</span>
+                <span className="text-zinc-900 dark:text-zinc-50 font-medium">{elem.name}</span>
             </div>
         </div>
     );
@@ -347,7 +347,7 @@ const SearchContainer = ({ value, setQuery, setValue }) => {
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
                     </svg>
                 </div>
-                <input value={value} onChange={(e) => setValue(e.target.value)} type="search" id="default-search" className="dark:bg-zinc-700 block outline-none w-full p-3 pl-10 text-md text-zinc-900 dark:text-zinc-50 dark:border-pink-600 border border-pink-400 rounded-lg " placeholder="Чернобыль..." required />
+                <input value={value} onChange={(e) => setValue(e.target.value)} type="search" id="default-search" className="dark:bg-zinc-700 block outline-none w-full p-3 pl-10 text-md text-zinc-900 dark:text-zinc-50 dark:border-pink-600 border border-pink-400 rounded-lg " placeholder="Самали..." required />
                 <button onClick={() => setNewQuery(value)} type="button" className="text-white select-none absolute end-1.5 bottom-2 bg-pink-400 dark:bg-pink-800 dark:hover:bg-pink-900 dark:active:bg-pink-700 hover:bg-pink-500 outline-none active:bg-pink-300 transition-all font-medium rounded-lg text-sm px-2 py-2">Поиск</button>
             </div>
 
@@ -361,7 +361,9 @@ const SearchContainer = ({ value, setQuery, setValue }) => {
 
 const DayItem = ({ id, activeDay, setActiveDay, data, setCurrentDay, DAYS_WEEK, toCelsius, isCelsius, day, ICONS }) => {
 
-    const dayClass = (activeDay == id) ? "bg-zinc-200 py-1 px-2 flex flex-col items-center rounded-md shadow-md cursor-pointer transition-colors" : "cursor-pointer bg-zinc-50 py-1 px-2 flex flex-col items-center rounded-md shadow-md hover:bg-zinc-200 active:bg-zinc-100 transition-colors"
+    const dayClass = (activeDay == id) ?
+        "bg-zinc-200 dark:bg-zinc-500"
+        : "bg-zinc-50 hover:bg-zinc-200 active:bg-zinc-100 dark:bg-zinc-700 dark:hover:bg-zinc-500 dark:active:bg-zinc-600";
 
     return (
         <div
@@ -369,11 +371,11 @@ const DayItem = ({ id, activeDay, setActiveDay, data, setCurrentDay, DAYS_WEEK, 
                 setActiveDay(id);
                 setCurrentDay(data?.days[id]);
             }}
-            className={dayClass}
+            className={`py-1 px-2 flex flex-col items-center rounded-md shadow-md cursor-pointer transition-colors ${dayClass}`}
         >
-            <span className="text-zinc-700">{DAYS_WEEK[new Date(day?.datetime).getDay()]}</span>
+            <span className="text-zinc-700 dark:text-zinc-100">{DAYS_WEEK[new Date(day?.datetime).getDay()]}</span>
             <img className="w-8 h-8" src={ICONS[day?.icon]} alt="day icon" />
-            <span className="text-zinc-700">
+            <span className="text-zinc-700 dark:text-zinc-100">
                 {isCelsius ? (
                     <>{toCelsius(day?.temp)} &#176;C</>
                 ) : (

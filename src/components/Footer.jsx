@@ -2,7 +2,7 @@ import logo from "../assets/logo-no-background.svg";
 
 const Footer = () => {
     return (
-        <footer className="bg-zinc-100 dark:bg-zinc-900 w-full">
+        <footer id="footer" className="bg-zinc-100 dark:bg-zinc-900 w-full">
             <div className="w-4/5 mx-auto flex justify-between py-8">
 
                 <div className="flex items-center gap-3">
@@ -25,18 +25,15 @@ const Footer = () => {
                         <li>
                             <a href="#" className="mb-2 text-zinc-600 dark:text-zinc-400 dark:hover:text-pink-600 text-lg hover:text-pink-500 transition-colors">React Router</a>
                         </li>
-                        <li>
-                            <a href="#" className="mb-2 text-zinc-600 dark:text-zinc-400 dark:hover:text-pink-600 text-lg hover:text-pink-500 transition-colors">WebGL</a>
-                        </li>
                     </ul>
 
                     <ul>
                         <li className="text-xl font-semibold text-zinc-400 dark:text-zinc-600 mb-3">Я тут</li>
                         <li>
-                            <a href="#" className="mb-2 text-zinc-600 dark:text-zinc-400 dark:hover:text-pink-600 text-lg hover:text-pink-500 transition-colors">Telegram</a>
+                            <a href="https://t.me/poooooooooooooooaa" className="mb-2 text-zinc-600 dark:text-zinc-400 dark:hover:text-pink-600 text-lg hover:text-pink-500 transition-colors">Telegram</a>
                         </li>
                         <li>
-                            <a href="#" className="mb-2 text-zinc-600 dark:text-zinc-400 dark:hover:text-pink-600 text-lg hover:text-pink-500 transition-colors">GitHub</a>
+                            <a href="https://github.com/sevchik-f8fe" className="mb-2 text-zinc-600 dark:text-zinc-400 dark:hover:text-pink-600 text-lg hover:text-pink-500 transition-colors">GitHub</a>
                         </li>
                         <li>
                             <a href="#" className="mb-2 text-zinc-600 dark:text-zinc-400 dark:hover:text-pink-600 text-lg hover:text-pink-500 transition-colors">Discord</a>
